@@ -39,6 +39,7 @@ def visualization(NodeID):
 		print overview
 		#print geojson
 		#process the home location and school location
+		'''
 		if (None,None) == (overview['Home'][(NodeID, dateList[i])]):
 			mark[i] = False
 		if (None,None) == (overview['School'][(NodeID, dateList[i])]):
@@ -46,6 +47,27 @@ def visualization(NodeID):
 		home_loc.append(overview['Home'][(NodeID, dateList[i])])
 		school_loc.append(overview['School'][(NodeID, dateList[i])])
 		center_loc.append(((Filter(home_loc[-1][0])+Filter(school_loc[-1][0]))/2,(Filter(home_loc[-1][1])+Filter(school_loc[-1][1]))/2))
+		'''
+		if tuple([NodeID, dateList[i]]) in overview['Home']:
+			if (None,None) == (overview['Home'][(NodeID, dateList[i])]):
+				mark[i] = False
+				home_loc.append((0,0))
+			else:
+				home_loc.append(overview['Home'][(NodeID, dateList[i])])
+		else:
+			home_loc.append((0,0))
+		if tuple([NodeID, dateList[i]]) in overview['School']:
+			if (None,None) == (overview['School'][(NodeID, dateList[i])]):
+				mark[i] = False
+				school_loc.append((0,0))
+			else:
+				school_loc.append(overview['School'][(NodeID, dateList[i])])
+		else:
+			school_loc.append((0,0))
+		if tuple([NodeID, dateList[i]]) in overview['Home'] and tuple([NodeID, dateList[i]]) in overview['School']:
+			center_loc.append(((Filter(home_loc[-1][0])+Filter(school_loc[-1][0]))/2,(Filter(home_loc[-1][1])+Filter(school_loc[-1][1]))/2))
+		else:
+			center_loc.append((0,0))
 		#process the geojson
 		geoItem = geoProcess(geojson,home_loc[-1],school_loc[-1])
 		geoList.append(geoItem)

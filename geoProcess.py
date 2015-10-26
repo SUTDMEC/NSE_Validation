@@ -49,6 +49,7 @@ def getMainModeOfAM(data):
 		ModeList = map(int,matchMode.group().strip("'am_mode': [").rstrip("],").split(','))
 	except Exception:
 		print "No travel mode!"
+		return "Loss"
 	if 4 in ModeList:
 		return "Train"
 	if 5 in ModeList:
@@ -62,11 +63,12 @@ def getMainModeOfPM(data):
 	regPm_mode = re.compile(r"'pm_mode':\s\[.*?\]")
 	matchMode = regPm_mode.search(str(data))
 	ModeList = []
-	print matchMode.group().strip("'pm_mode': [").rstrip("]").split(',')
+	#print matchMode.group().strip("'pm_mode': [").rstrip("]").split(',')
 	try:
 		ModeList = map(int,matchMode.group().strip("'pm_mode': [").rstrip("]").split(','))
 	except Exception:
 		print "No travel mode!"
+		return "Loss"
 	if 4 in ModeList:
 		return "Train"
 	if 5 in ModeList:
@@ -87,6 +89,7 @@ def Filter(number):
 if __name__=="__main__":
 	overview, geojson = main("https://data.nse.sg","nodeFile.csv","2015-09-29",testing = True)
 	#print geojson
+	print geojson
 	print overview
 	home_loc = overview['Home'][(510132, "2015-09-28")]
 	school_loc = overview['School'][(510132, "2015-09-28")]
