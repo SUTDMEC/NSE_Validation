@@ -1,0 +1,394 @@
+<!DOCTYPE HTML>
+<!--
+	Overflow by HTML5 UP
+	html5up.net | @n33co
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Map Visualization</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="/static/assets/css/main.css" />
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+	</head>
+	<body>
+
+		<!-- Header -->
+			<section id="header">
+				<header>
+					<h1>Map Visualization</h1>
+					<p>By SenSg Team</p>
+				</header>
+				<footer>
+					<a href="#banner" class="button style2 scrolly-middle">Check the maps</a>
+				</footer>
+			</section>
+
+		<!-- Banner -->
+
+			<section id="banner">
+				<header>
+					<h2>Instructions</h2>
+				</header>
+				<p>The left map shows the three main modes: </br>red for bus, blue for train, green for driving. </br>The right map shows the ground truth.</br>Blue for AM mode and Green PM mode.</p>
+				<footer>
+					<a href="#maps1" class="button style2 scrolly">Begins</a>
+				</footer>
+			</section>
+
+		{% for i in range(length-1) %}
+		    <article id={{mapName[i]}} class="container box style2">
+				<header>
+					<h2>{{date[i+1]}}</h2>
+					<p>Google map:<br />
+						AM: {{amMode[i]}} ; The {{amColor[i]}} line.</br>
+						PM: {{pmMode[i]}} ; The {{pmColor[i]}} line.</br>
+					   Our prediction:</br>
+					    AM: {{amMode[i]}} ; The Blue Line. </br>
+					    PM: {{pmMode[i]}} ; The Green Line.
+
+					</p>
+				</header>
+				<div class="inner gallery">
+					<div class="row 0%">
+						<div class = "6u 12u(mobile)" id={{mappreName[i]}} class="image fit" style="width: 480px; height: 500px"></div>
+						<div class = "6u 12u(mobile)" id={{maptruthName[i]}} class="image fit" style="width: 480px; height: 500px"></div>
+					</div>
+				</div>
+			</article>
+		{% endfor %}
+
+		<script type="text/javascript">
+			var map;
+			function createRouter(directionsDisplay) {
+				return function(response, status){
+						if (status == google.maps.DirectionsStatus.OK) {
+							directionsDisplay.setDirections(response);
+						}
+					};
+			}
+
+			
+
+			function initMap() {
+				var home_loc_point_list = new Array();
+				var school_loc_point_list = new Array();
+				var center_point_list = new Array();
+				
+				{% for i in range(length-1) %}
+					home_loc_point_list[{{i}}] = { lat:{{ home_loc[i][0] }} , lng: {{ home_loc[i][1]}}};
+					school_loc_point_list[{{i}}] = { lat:{{ school_loc[i][0]}} , lng:{{ school_loc[i][1]}}};
+					center_point_list[{{i}}] = { lat:{{ center_loc[i][0]}}, lng:{{center_loc[i][1]}}};
+				{% endfor %}
+				//for (var mapNum = 0; mapNum<{{length-1}}; mapNum++) {
+				{% for mapNum in range(length-1) %}	
+					
+					var home_loc_point = home_loc_point_list[{{mapNum}}];
+					var school_loc_point = school_loc_point_list[{{mapNum}}];
+					var center_point = center_point_list[{{mapNum}}];
+
+					//The left map for prediction
+					mappre = new google.maps.Map(document.getElementById('map'+({{mapNum}}+1)+'pre'),{
+						center : center_point,
+						zoom : 14
+					});
+					addMaker(home_loc_point, mappre, "H");
+					addMaker(school_loc_point, mappre, "S");
+					(function (mappre) {
+						var directionsDisplayForBus = new google.maps.DirectionsRenderer({
+							map: mappre,
+							polylineOptions: {
+		      					strokeColor: "red"
+		    				}
+						});
+						var directionsDisplayForSubway = new google.maps.DirectionsRenderer({
+							map: mappre,
+							polylineOptions: {
+		      					strokeColor: "blue"
+		    				}
+						});
+						var directionsDisplayForDriving = new google.maps.DirectionsRenderer({
+							map: mappre,
+							polylineOptions: {
+		      					strokeColor: "green"
+		    				}
+						});
+
+						var directionsDisplayForWalking = new google.maps.DirectionsRenderer({
+							map: mappre,
+							polylineOptions: {
+								strokeColor: "yellow"
+							}
+						});
+
+						var requestForSubway = {
+							destination : school_loc_point,
+							origin : home_loc_point,
+							travelMode : google.maps.TravelMode.TRANSIT,
+							transitOptions: {
+							    modes: [google.maps.TransitMode.SUBWAY],
+							    departureTime: new Date(2015,10,15,11,00,00)
+							}
+						};
+
+						var requestForBus = {
+							destination : school_loc_point,
+							origin : home_loc_point,
+							travelMode : google.maps.TravelMode.TRANSIT,
+							transitOptions: {
+							    modes: [google.maps.TransitMode.BUS],
+							    departureTime: new Date(2015,10,15,11,00,00)
+							}
+						};
+
+						var requestForDriving = {
+							destination : school_loc_point,
+							origin : home_loc_point,
+							travelMode : google.maps.TravelMode.DRIVING
+						};
+
+						var requestForWalking = {
+							destination : school_loc_point,
+							origin : home_loc_point,
+							travelMode : google.maps.TravelMode.WALKING
+						};
+
+						var directionsServiceForSubway = new google.maps.DirectionsService();
+						directionsServiceForSubway.route(requestForSubway, function(response, status){
+							if (status == google.maps.DirectionsStatus.OK) {
+								directionsDisplayForSubway.setDirections(response);
+							} else  {
+								//alert(status);
+								//wait = true;
+								setTimeout(function(){
+									directionsServiceForSubway.route(requestForSubway, function(response, status){
+										if (status == google.maps.DirectionsStatus.OK) {
+										directionsDisplayForSubway.setDirections(response);
+									}else  {
+								//alert(status);
+								//wait = true;
+								setTimeout(function(){
+									directionsServiceForSubway.route(requestForSubway, function(response, status){
+										if (status == google.maps.DirectionsStatus.OK) {
+										directionsDisplayForSubway.setDirections(response);
+									} else {
+										alert(status);
+									}
+								});} ,3000)
+							}
+								});} ,3000)
+							}
+						});
+						
+						
+						var directionsServiceForBus = new google.maps.DirectionsService();
+
+						directionsServiceForBus.route(requestForBus, function(response, status){
+							if (status == google.maps.DirectionsStatus.OK) {
+								directionsDisplayForBus.setDirections(response);
+								
+							} else  {
+								//alert(status);
+								//wait = true;
+								setTimeout(function(){
+									directionsServiceForBus.route(requestForBus, function(response, status){
+										if (status == google.maps.DirectionsStatus.OK) {
+										directionsDisplayForBus.setDirections(response);
+									} else  {
+								//alert(status);
+								//wait = true;
+								setTimeout(function(){
+									directionsServiceForBus.route(requestForBus, function(response, status){
+										if (status == google.maps.DirectionsStatus.OK) {
+										directionsDisplayForBus.setDirections(response);
+									} else {
+										alert(status);
+									}
+								});} ,3000)
+							}
+								});} ,3000)
+							}
+						});
+
+						
+
+						var wait = false;
+						var directionsServiceForDriving = new google.maps.DirectionsService();
+
+						directionsServiceForDriving.route(requestForDriving, function(response, status){
+							if (status == google.maps.DirectionsStatus.OK) {
+								directionsDisplayForDriving.setDirections(response);
+								
+							} else  {
+								//alert(status);
+								//wait = true;
+								setTimeout(function(){
+									directionsServiceForDriving.route(requestForDriving, function(response, status){
+										if (status == google.maps.DirectionsStatus.OK) {
+										directionsDisplayForDriving.setDirections(response);
+									} else  {
+								//alert(status);
+								//wait = true;
+								setTimeout(function(){
+									directionsServiceForDriving.route(requestForDriving, function(response, status){
+										if (status == google.maps.DirectionsStatus.OK) {
+										directionsDisplayForDriving.setDirections(response);
+									} else  {
+								//alert(status);
+								//wait = true;
+								setTimeout(function(){
+									directionsServiceForDriving.route(requestForDriving, function(response, status){
+										if (status == google.maps.DirectionsStatus.OK) {
+										directionsDisplayForDriving.setDirections(response);
+									} else {
+										alert(status);
+									}
+								});} ,3000)
+							}
+								});} ,3000)
+							}
+								});} ,3000)
+							}
+						});
+/*						
+						if (wait == true) {
+						directionsServiceForDriving.route(requestForDriving, function(response, status){
+							if (status == google.maps.DirectionsStatus.OK) {
+								directionsDisplayForDriving.setDirections(response);
+							} else {
+								alert(status);
+							}
+						});
+						wait = false;
+						}
+*/
+						var directionsServiceForWalking = new google.maps.DirectionsService();
+						directionsServiceForWalking.route(requestForWalking, function(response, status){
+							if (status == google.maps.DirectionsStatus.OK) {
+								directionsDisplayForWalking.setDirections(response);
+								
+							} else  {
+								//alert(status);
+								//wait = true;
+								setTimeout(function(){
+									directionsServiceForWalking.route(requestForWalking, function(response, status){
+										if (status == google.maps.DirectionsStatus.OK) {
+										directionsDisplayForWalking.setDirections(response);
+									} else  {
+								//alert(status);
+								//wait = true;
+								setTimeout(function(){
+									directionsServiceForWalking.route(requestForWalking, function(response, status){
+										if (status == google.maps.DirectionsStatus.OK) {
+										directionsDisplayForWalking.setDirections(response);
+									} else  {
+								//alert(status);
+								//wait = true;
+								setTimeout(function(){
+									directionsServiceForWalking.route(requestForWalking, function(response, status){
+										if (status == google.maps.DirectionsStatus.OK) {
+										directionsDisplayForWalking.setDirections(response);
+									} else {
+										alert(status);
+									}
+								});} ,5000)
+							}
+								});} ,5000)
+							}
+								});} ,5000)
+							}
+						});
+/*						
+					if (wait == true) {
+						directionsServiceForWalking.route(requestForWalking, function(response, status){
+							if (status == google.maps.DirectionsStatus.OK) {
+								directionsDisplayForWalking.setDirections(response);
+							} else {
+								alert(status);
+							}
+						});
+						wait = false;
+					}
+
+*/
+					
+					})(mappre);
+
+					
+					//The right map for ground truth
+					maptruth = new google.maps.Map(document.getElementById('map'+({{mapNum}}+1)+'truth'),{
+						center : center_point,
+						zoom : 14
+					});
+
+					
+					//var pathCoordinates = [];
+					{% for item in geoList[mapNum][0] %}
+						//pathCoordinates.push({lat:{{item[0]}}, lng:{{item[1]}}});
+						addDot({lat:{{item[0]}}, lng:{{item[1]}}},maptruth,"green")
+
+					{% endfor %}
+					{% for item in geoList[mapNum][1] %}
+						//pathCoordinates.push({lat:{{item[0]}}, lng:{{item[1]}}});
+						addDot({lat:{{item[0]}}, lng:{{item[1]}}},maptruth,"blue")
+
+					{% endfor %}
+					
+				//}
+				{% endfor %}
+				
+
+			}
+
+
+			function addDot(location, map, color) {
+				var circle ={
+				    path: google.maps.SymbolPath.CIRCLE,
+				    fillColor: color,
+				    fillOpacity: .4,
+				    scale: 4.5,
+				    strokeColor: 'white',
+				    strokeWeight: 1
+				};
+				var marker = new google.maps.Marker({
+					position: location,
+					map: map,
+					icon: circle
+				});
+			}
+
+			function addMaker(location, map, label) {
+				var marker = new google.maps.Marker({
+					position: location,
+					label: label,
+					map: map
+				});
+			}
+
+		</script>
+
+		<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBV8SMRQIiqnLTD_bhYv_Hz8HHmRwrZIyM&callback=initMap"></script>
+
+
+		<section id="footer">
+			<div class="copyright">
+				<ul class="menu">
+					<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</div>
+		</section>
+
+		<!-- Scripts -->
+			<script src="/static/assets/js/jquery.min.js"></script>
+			<script src="/static/assets/js/jquery.scrolly.min.js"></script>
+			<script src="/static/assets/js/jquery.poptrox.min.js"></script>
+			<script src="/static/assets/js/skel.min.js"></script>
+			<script src="/static/assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="/static/assets/js/main.js"></script>
+
+	</body>
+</html>

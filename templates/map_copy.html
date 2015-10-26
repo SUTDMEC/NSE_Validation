@@ -1,0 +1,504 @@
+<!--
+
+		<article id="maps2" class="container box style2">
+				<header>
+					<h2>{{date[2]}}</h2>
+					<p>Prediction:<br />
+						AM: {{amMode[1]}} ; The {{amColor[1]}} line.</br>
+						PM: {{pmMode[1]}} ; The {{pmColor[1]}} line.</br>
+					   Truth:</br>
+					    AM: The Blue Line. </br>
+					    PM: The Green Line.
+
+					</p>
+				</header>
+				<div class="inner gallery">
+					<div class="row 0%">
+						<div class = "6u 12u(mobile)" id="map2pre" class="image fit" style="width: 480px; height: 500px"></div>
+						<div class = "6u 12u(mobile)" id="map2truth" class="image fit" style="width: 480px; height: 500px"></div>
+					</div>
+				</div>
+			</article>
+
+
+		<script type="text/javascript">
+			var map;
+
+			function initMap2() {
+				var home_loc_point = { lat:{{ home_loc[1][0] }} , lng: {{ home_loc[1][1]}}};
+				var school_loc_point = { lat:{{ school_loc[1][0]}} , lng:{{ school_loc[1][1]}}};
+				var center_point = { lat:{{ center_loc[1][0]}}, lng:{{center_loc[1][1]}} }
+				
+
+				//The left map for prediction
+				mappre = new google.maps.Map(document.getElementById('map2pre'),{
+					center : center_point,
+					zoom : 14
+				});
+				addMaker(home_loc_point, mappre, "H");
+				addMaker(school_loc_point, mappre, "S");
+
+				var directionsDisplayForBus = new google.maps.DirectionsRenderer({
+					map: mappre,
+					polylineOptions: {
+      					strokeColor: "red"
+    				}
+				})
+				var directionsDisplayForSubway = new google.maps.DirectionsRenderer({
+					map: mappre,
+					polylineOptions: {
+      					strokeColor: "blue"
+    				}
+				})
+				var directionsDisplayForDriving = new google.maps.DirectionsRenderer({
+					map: mappre,
+					polylineOptions: {
+      					strokeColor: "green"
+    				}
+				})
+
+				var requestForSubway = {
+					destination : school_loc_point,
+					origin : home_loc_point,
+					travelMode : google.maps.TravelMode.TRANSIT,
+					transitOptions: {
+					    modes: [google.maps.TransitMode.SUBWAY]
+					}
+				}
+
+				var requestForBus = {
+					destination : school_loc_point,
+					origin : home_loc_point,
+					travelMode : google.maps.TravelMode.TRANSIT,
+					transitOptions: {
+					    modes: [google.maps.TransitMode.BUS]
+					}
+				}
+
+				var requestForDriving = {
+					destination : school_loc_point,
+					origin : home_loc_point,
+					travelMode : google.maps.TravelMode.DRIVING
+				}
+
+				var directionsServiceForSubway = new google.maps.DirectionsService();
+				directionsServiceForSubway.route(requestForSubway, function(response, status){
+					if (status == google.maps.DirectionsStatus.OK) {
+						directionsDisplayForSubway.setDirections(response);
+					}
+				});
+
+				var directionsServiceForBus = new google.maps.DirectionsService();
+				directionsServiceForBus.route(requestForBus, function(response, status){
+					if (status == google.maps.DirectionsStatus.OK) {
+						directionsDisplayForBus.setDirections(response);
+					}
+				});
+
+				var directionsServiceForDriving = new google.maps.DirectionsService();
+				directionsServiceForDriving.route(requestForDriving, function(response, status){
+					if (status == google.maps.DirectionsStatus.OK) {
+						directionsDisplayForDriving.setDirections(response);
+					}
+				});
+
+				
+				//The right map for ground truth
+				maptruth = new google.maps.Map(document.getElementById('map1truth'),{
+					center : center_point,
+					zoom : 14
+				});
+
+				
+				//var pathCoordinates = [];
+				{% for item in geoList[1][0] %}
+					//pathCoordinates.push({lat:{{item[0]}}, lng:{{item[1]}}});
+					addDot({lat:{{item[0]}}, lng:{{item[1]}}},maptruth,"green")
+
+				{% endfor %}
+				{% for item in geoList[1][1] %}
+					//pathCoordinates.push({lat:{{item[0]}}, lng:{{item[1]}}});
+					addDot({lat:{{item[0]}}, lng:{{item[1]}}},maptruth,"blue")
+
+				{% endfor %}
+				
+				
+				
+			
+				/*
+				var Path = new google.maps.Polyline({
+					path : pathCoordinates,
+					geodesic: true,
+					strokeColor: "#FF0000",
+					strokeOpacity: 1.0,
+					strokeWeight: 2
+				});
+
+				Path.setMap(maptruth);				
+				*/
+
+			}
+
+
+			function addDot(location, map, color) {
+				var circle ={
+				    path: google.maps.SymbolPath.CIRCLE,
+				    fillColor: color,
+				    fillOpacity: .4,
+				    scale: 4.5,
+				    strokeColor: 'white',
+				    strokeWeight: 1
+				};
+				var marker = new google.maps.Marker({
+					position: location,
+					map: map,
+					icon: circle
+				});
+			}
+
+			function addMaker(location, map, label) {
+				var marker = new google.maps.Marker({
+					position: location,
+					label: label,
+					map: map,
+				});
+			}
+
+		</script>
+
+
+		<article id="maps3" class="container box style2">
+				<header>
+					<h2>{{date[3]}}</h2>
+					<p>Prediction:<br />
+						AM: {{amMode[2]}} ; The {{amColor[2]}} line.</br>
+						PM: {{pmMode[2]}} ; The {{pmColor[2]}} line.</br>
+					   Truth:</br>
+					    AM: The Blue Line. </br>
+					    PM: The Green Line.
+
+					</p>
+				</header>
+				<div class="inner gallery">
+					<div class="row 0%">
+						<div class = "6u 12u(mobile)" id="map3pre" class="image fit" style="width: 480px; height: 500px"></div>
+						<div class = "6u 12u(mobile)" id="map3truth" class="image fit" style="width: 480px; height: 500px"></div>
+					</div>
+				</div>
+			</article>
+
+
+		<script type="text/javascript">
+			var map;
+
+			function initMap3() {
+				var home_loc_point = { lat:{{ home_loc[2][0] }} , lng: {{ home_loc[2][1]}}};
+				var school_loc_point = { lat:{{ school_loc[2][0]}} , lng:{{ school_loc[2][1]}}};
+				var center_point = { lat:{{ center_loc[2][0]}}, lng:{{center_loc[2][1]}} }
+				
+
+				//The left map for prediction
+				mappre = new google.maps.Map(document.getElementById('map3pre'),{
+					center : center_point,
+					zoom : 14
+				});
+				addMaker(home_loc_point, mappre, "H");
+				addMaker(school_loc_point, mappre, "S");
+
+				var directionsDisplayForBus = new google.maps.DirectionsRenderer({
+					map: mappre,
+					polylineOptions: {
+      					strokeColor: "red"
+    				}
+				})
+				var directionsDisplayForSubway = new google.maps.DirectionsRenderer({
+					map: mappre,
+					polylineOptions: {
+      					strokeColor: "blue"
+    				}
+				})
+				var directionsDisplayForDriving = new google.maps.DirectionsRenderer({
+					map: mappre,
+					polylineOptions: {
+      					strokeColor: "green"
+    				}
+				})
+
+				var requestForSubway = {
+					destination : school_loc_point,
+					origin : home_loc_point,
+					travelMode : google.maps.TravelMode.TRANSIT,
+					transitOptions: {
+					    modes: [google.maps.TransitMode.SUBWAY]
+					}
+				}
+
+				var requestForBus = {
+					destination : school_loc_point,
+					origin : home_loc_point,
+					travelMode : google.maps.TravelMode.TRANSIT,
+					transitOptions: {
+					    modes: [google.maps.TransitMode.BUS]
+					}
+				}
+
+				var requestForDriving = {
+					destination : school_loc_point,
+					origin : home_loc_point,
+					travelMode : google.maps.TravelMode.DRIVING
+				}
+
+				var directionsServiceForSubway = new google.maps.DirectionsService();
+				directionsServiceForSubway.route(requestForSubway, function(response, status){
+					if (status == google.maps.DirectionsStatus.OK) {
+						directionsDisplayForSubway.setDirections(response);
+					}
+				});
+
+				var directionsServiceForBus = new google.maps.DirectionsService();
+				directionsServiceForBus.route(requestForBus, function(response, status){
+					if (status == google.maps.DirectionsStatus.OK) {
+						directionsDisplayForBus.setDirections(response);
+					}
+				});
+
+				var directionsServiceForDriving = new google.maps.DirectionsService();
+				directionsServiceForDriving.route(requestForDriving, function(response, status){
+					if (status == google.maps.DirectionsStatus.OK) {
+						directionsDisplayForDriving.setDirections(response);
+					}
+				});
+
+				
+				//The right map for ground truth
+				maptruth = new google.maps.Map(document.getElementById('map3truth'),{
+					center : center_point,
+					zoom : 14
+				});
+
+				
+				//var pathCoordinates = [];
+				{% for item in geoList[2][0] %}
+					//pathCoordinates.push({lat:{{item[0]}}, lng:{{item[1]}}});
+					addDot({lat:{{item[0]}}, lng:{{item[1]}}},maptruth,"green")
+
+				{% endfor %}
+				{% for item in geoList[2][1] %}
+					//pathCoordinates.push({lat:{{item[0]}}, lng:{{item[1]}}});
+					addDot({lat:{{item[0]}}, lng:{{item[1]}}},maptruth,"blue")
+
+				{% endfor %}
+				
+				
+				
+			
+				/*
+				var Path = new google.maps.Polyline({
+					path : pathCoordinates,
+					geodesic: true,
+					strokeColor: "#FF0000",
+					strokeOpacity: 1.0,
+					strokeWeight: 2
+				});
+
+				Path.setMap(maptruth);				
+				*/
+
+			}
+
+
+			function addDot(location, map, color) {
+				var circle ={
+				    path: google.maps.SymbolPath.CIRCLE,
+				    fillColor: color,
+				    fillOpacity: .4,
+				    scale: 4.5,
+				    strokeColor: 'white',
+				    strokeWeight: 1
+				};
+				var marker = new google.maps.Marker({
+					position: location,
+					map: map,
+					icon: circle
+				});
+			}
+
+			function addMaker(location, map, label) {
+				var marker = new google.maps.Marker({
+					position: location,
+					label: label,
+					map: map,
+				});
+			}
+
+		</script>
+
+
+		<article id="maps4" class="container box style2">
+				<header>
+					<h2>{{date[4]}}</h2>
+					<p>Prediction:<br />
+						AM: {{amMode[3]}} ; The {{amColor[3]}} line.</br>
+						PM: {{pmMode[3]}} ; The {{pmColor[3]}} line.</br>
+					   Truth:</br>
+					    AM: The Blue Line. </br>
+					    PM: The Green Line.
+
+					</p>
+				</header>
+				<div class="inner gallery">
+					<div class="row 0%">
+						<div class = "6u 12u(mobile)" id="map4pre" class="image fit" style="width: 480px; height: 500px"></div>
+						<div class = "6u 12u(mobile)" id="map4truth" class="image fit" style="width: 480px; height: 500px"></div>
+					</div>
+				</div>
+			</article>
+
+
+		<script type="text/javascript">
+			var map;
+
+			function initMap4() {
+				var home_loc_point = { lat:{{ home_loc[3][0] }} , lng: {{ home_loc[3][1]}}};
+				var school_loc_point = { lat:{{ school_loc[3][0]}} , lng:{{ school_loc[3][1]}}};
+				var center_point = { lat:{{ center_loc[3][0]}}, lng:{{center_loc[3][1]}} }
+				
+
+				//The left map for prediction
+				mappre = new google.maps.Map(document.getElementById('map4pre'),{
+					center : center_point,
+					zoom : 14
+				});
+				addMaker(home_loc_point, mappre, "H");
+				addMaker(school_loc_point, mappre, "S");
+
+				var directionsDisplayForBus = new google.maps.DirectionsRenderer({
+					map: mappre,
+					polylineOptions: {
+      					strokeColor: "red"
+    				}
+				})
+				var directionsDisplayForSubway = new google.maps.DirectionsRenderer({
+					map: mappre,
+					polylineOptions: {
+      					strokeColor: "blue"
+    				}
+				})
+				var directionsDisplayForDriving = new google.maps.DirectionsRenderer({
+					map: mappre,
+					polylineOptions: {
+      					strokeColor: "green"
+    				}
+				})
+
+				var requestForSubway = {
+					destination : school_loc_point,
+					origin : home_loc_point,
+					travelMode : google.maps.TravelMode.TRANSIT,
+					transitOptions: {
+					    modes: [google.maps.TransitMode.SUBWAY]
+					}
+				}
+
+				var requestForBus = {
+					destination : school_loc_point,
+					origin : home_loc_point,
+					travelMode : google.maps.TravelMode.TRANSIT,
+					transitOptions: {
+					    modes: [google.maps.TransitMode.BUS]
+					}
+				}
+
+				var requestForDriving = {
+					destination : school_loc_point,
+					origin : home_loc_point,
+					travelMode : google.maps.TravelMode.DRIVING
+				}
+
+				var directionsServiceForSubway = new google.maps.DirectionsService();
+				directionsServiceForSubway.route(requestForSubway, function(response, status){
+					if (status == google.maps.DirectionsStatus.OK) {
+						directionsDisplayForSubway.setDirections(response);
+					}
+				});
+
+				var directionsServiceForBus = new google.maps.DirectionsService();
+				directionsServiceForBus.route(requestForBus, function(response, status){
+					if (status == google.maps.DirectionsStatus.OK) {
+						directionsDisplayForBus.setDirections(response);
+					}
+				});
+
+				var directionsServiceForDriving = new google.maps.DirectionsService();
+				directionsServiceForDriving.route(requestForDriving, function(response, status){
+					if (status == google.maps.DirectionsStatus.OK) {
+						directionsDisplayForDriving.setDirections(response);
+					}
+				});
+
+				
+				//The right map for ground truth
+				maptruth = new google.maps.Map(document.getElementById('map4truth'),{
+					center : center_point,
+					zoom : 14
+				});
+
+				
+				//var pathCoordinates = [];
+				{% for item in geoList[3][0] %}
+					//pathCoordinates.push({lat:{{item[0]}}, lng:{{item[1]}}});
+					addDot({lat:{{item[0]}}, lng:{{item[1]}}},maptruth,"green")
+
+				{% endfor %}
+				{% for item in geoList[3][1] %}
+					//pathCoordinates.push({lat:{{item[0]}}, lng:{{item[1]}}});
+					addDot({lat:{{item[0]}}, lng:{{item[1]}}},maptruth,"blue")
+
+				{% endfor %}
+				
+				
+				
+			
+				/*
+				var Path = new google.maps.Polyline({
+					path : pathCoordinates,
+					geodesic: true,
+					strokeColor: "#FF0000",
+					strokeOpacity: 1.0,
+					strokeWeight: 2
+				});
+
+				Path.setMap(maptruth);				
+				*/
+
+			}
+
+
+			function addDot(location, map, color) {
+				var circle ={
+				    path: google.maps.SymbolPath.CIRCLE,
+				    fillColor: color,
+				    fillOpacity: .4,
+				    scale: 4.5,
+				    strokeColor: 'white',
+				    strokeWeight: 1
+				};
+				var marker = new google.maps.Marker({
+					position: location,
+					map: map,
+					icon: circle
+				});
+			}
+
+			function addMaker(location, map, label) {
+				var marker = new google.maps.Marker({
+					position: location,
+					label: label,
+					map: map,
+				});
+			}
+
+		</script>
+
+
+-->
