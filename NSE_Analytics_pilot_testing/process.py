@@ -380,7 +380,7 @@ def create_geojson(nid, data_frame, home_loc, school_loc, modes):
         mode = segment[0][1]
         json_buffer.append(line_json_template % (linestring, nid, mode_to_color[mode], mode_to_string[mode]))
         # put time markers for segment start, add 8 hours (=28800 sec) for singapor time
-        time_label = datetime.datetime.fromtimestamp(segment[0][2]+28800).strftime('%Y-%m-%d %H:%M:%S')
+        time_label = datetime.datetime.fromtimestamp(segment[0][2]).strftime('%Y-%m-%d %H:%M:%S')
         json_buffer.append('''
          { "type": "Feature",
            "geometry": {
