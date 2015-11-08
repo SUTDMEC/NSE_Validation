@@ -40,6 +40,7 @@ import TransitHeuristic
 import tripParse
 from util import great_circle_dist, aveWithNan, chunks
 
+API_key = "sutd-nse_api:dj6M9RAxynrjw9aWztzprfh5AKHssgVj4qKXiKSfHRyGKeoX92wmwmEJKpHMIB5"
 
 def getData(url, nid, start_time=0, end_time=int(time.time()), table=None):
     """Retrieve raw hardware data for device nid for the specified time
@@ -52,7 +53,7 @@ def getData(url, nid, start_time=0, end_time=int(time.time()), table=None):
     if table:
         payload['table'] = table
 
-    header = {"Content-Type": "application/json", 'Authorization' : 'Basic %s' % base64.b64encode("sutd-nse_api:UZZbhMTNTIjTKqtOXJ3jReBnbbkTIWnxXiqIhXuKyZrHRRWS6cLpvZ3YcYXpITC")}
+    header = {"Content-Type": "application/json", 'Authorization' : 'Basic %s' % base64.b64encode(API_key)}
     req = requests.get("%s/getdata" % url, params=payload, headers=header)
     logging.debug("getdata url: %s" % str(req.url))
     if req.status_code != requests.codes.ok:
@@ -74,7 +75,7 @@ def getStatus(url, nid, date):
     # note: int 'ts' is added in order to work around API caching issue
     payload = {'nid' : nid, 'date' : date, 'ts':int(time.time())}
 
-    header = {"Content-Type": "application/json", 'Authorization' : 'Basic %s' % base64.b64encode("sutd-nse_api:UZZbhMTNTIjTKqtOXJ3jReBnbbkTIWnxXiqIhXuKyZrHRRWS6cLpvZ3YcYXpITC")}
+    header = {"Content-Type": "application/json", 'Authorization' : 'Basic %s' % base64.b64encode(API_key)}
     req = requests.get("%s/getanalysestatus" % url, params=payload, headers=header)
     logging.debug("getStatus url: %s" % str(req.url))
     if req.status_code != requests.codes.ok:
@@ -95,7 +96,7 @@ def getPendingAnalysisDates(url, nid):
     # note: int 'ts' is added in order to work around API caching issue
     payload = {'nid' : nid, 'ts':int(time.time())}
 
-    header = {"Content-Type": "application/json", 'Authorization' : 'Basic %s' % base64.b64encode("sutd-nse_api:UZZbhMTNTIjTKqtOXJ3jReBnbbkTIWnxXiqIhXuKyZrHRRWS6cLpvZ3YcYXpITC")}
+    header = {"Content-Type": "application/json", 'Authorization' : 'Basic %s' % base64.b64encode(API_key)}
     req = requests.get("%s/getpendinganalysedates" % url, params=payload, headers=header)
     logging.debug("getPendingAnalysisDates url: %s" % str(req.url))
     if req.status_code != requests.codes.ok:
@@ -116,7 +117,7 @@ def setStatus(url, nid, date, status):
     # note: int 'ts' is added in order to work around API caching issue
     payload = {'nid' : nid, 'date' : date, 'status' : status }
 
-    header = {"Content-Type": "application/json", 'Authorization' : 'Basic %s' % base64.b64encode("sutd-nse_api:UZZbhMTNTIjTKqtOXJ3jReBnbbkTIWnxXiqIhXuKyZrHRRWS6cLpvZ3YcYXpITC")}
+    header = {"Content-Type": "application/json", 'Authorization' : 'Basic %s' % base64.b64encode(API_key)}
     req = requests.get("%s/updateanalysestatus" % url, params=payload, headers=header)
     logging.debug("setStatus url: %s" % str(req.url))
     if req.status_code != requests.codes.ok:
@@ -132,7 +133,7 @@ def saveMode(url, nid, timestamps, modes):
     be the same. Return True if successful and False otherwise.
 
     """
-    header = {"Accept":"application/json","Content-Type": "application/json", 'Authorization' : 'Basic %s' % base64.b64encode("sutd-nse_api:UZZbhMTNTIjTKqtOXJ3jReBnbbkTIWnxXiqIhXuKyZrHRRWS6cLpvZ3YcYXpITC")}
+    header = {"Accept":"application/json","Content-Type": "application/json", 'Authorization' : 'Basic %s' % base64.b64encode(API_key)}
     if modes is None or timestamps is None or len(modes) != len(timestamps):
         raise ValueError("modes and timestamps must be of the same length and not None.")
     to_dict = lambda x: {"timestamp": long(x[0]), "cmode": int(x[1])}
@@ -165,7 +166,7 @@ def saveTrips(url, nid, date, trips):
     payload['nid'] = nid
     payload['date'] = date
 
-    header = {"Accept":"application/json","Content-Type": "application/json", 'Authorization' : 'Basic %s' % base64.b64encode("sutd-nse_api:UZZbhMTNTIjTKqtOXJ3jReBnbbkTIWnxXiqIhXuKyZrHRRWS6cLpvZ3YcYXpITC")}
+    header = {"Accept":"application/json","Content-Type": "application/json", 'Authorization' : 'Basic %s' % base64.b64encode(API_key)}
 
     req = requests.post("%s/importanalysedsummary" % url, data=json.dumps(payload), headers=header)
 
